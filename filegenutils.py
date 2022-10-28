@@ -49,8 +49,8 @@ def build_include_list(parsed_file, file_excluder):
     include_filelist = []
     
     for file in parsed_file.other_includes:
-        if not file_excluder.is_excluded_path(file):
-            fixed_filename = file.replace(".h", "_DxTransform.h")
+        if not file_excluder.is_excluded_path(file.absolute_filepath):
+            fixed_filename = file.include_filename.replace(".h", "_H5DataType.h")
             if fixed_filename.startswith('./'):
                 fixed_filename = fixed_filename[2:]
             include_filelist.append(fixed_filename)
@@ -69,7 +69,7 @@ def build_namespace_list(type_fqn):
 
 
 def build_output_filepath(output_directory, parsed_filepath_no_dir, desired_output_ext, input_file_ext="h"):
-    output_filename = parsed_filepath_no_dir.replace(".{0}".format(input_file_ext), "_DxTransform.{0}".format(desired_output_ext))
+    output_filename = parsed_filepath_no_dir.replace(".{0}".format(input_file_ext), "_H5DataType.{0}".format(desired_output_ext))
     return os.path.join(output_directory, output_filename)
 
 def write_preamble(writefile, parsed_filename_no_dir):

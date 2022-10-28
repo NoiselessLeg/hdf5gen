@@ -132,6 +132,6 @@ def parse_input_file(input_filename, logger, additional_include_dirs=[]):
     include_list = _build_include_list(logger, translation_unit.cursor)
     _build_typeman_recurse(logger, typeman, translation_unit.cursor)
     
-    return parsed_file(input_filename, typeman, include_list)
+    return parsed_file(input_filename, typeman, include_list, additional_include_dirs)
     
    

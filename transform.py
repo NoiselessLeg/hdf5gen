@@ -29,10 +29,9 @@ import time
 
 import clang.cindex
 
-from cppfilegen import generate_output_cpp_file
-from exceptiontypes import CompilerError
+from exceptiontypes import CompilerError, SevereLogMsgException
 from fileexclusion import FileExcluder
-from headerfilegen import generate_output_header_file
+from filegen import generate_output_header_file
 from fileparse import parse_input_file
 from logger import Logger, LogLevel
 from parsedfile import parsed_file
@@ -54,6 +53,11 @@ if __name__ == "__main__":
         clang.cindex.Config.set_library_file(args.clang_library_file)
 
         logger.log(LogLevel.Info, "Parsing file {0}.".format(args.target_file))
+
+        if not os.path.exists(args.target_file):
+            logger.log(LogLevel.Severe, "Could not find file {0} to read.".format(args.target_file))
+            exit()
+
         start = time.time()
         if args.include_directory is not None:
             parsed_file = parse_input_file(args.target_file, logger, args.include_directory)
@@ -66,9 +70,11 @@ if __name__ == "__main__":
         
         file_excluder = FileExcluder(args.ignore_file)
         generate_output_header_file(logger, args.output_dir, parsed_file, file_excluder)
-        generate_output_cpp_file(logger, args.output_dir, parsed_file, file_excluder)
+        #generate_output_cpp_file(logger, args.output_dir, parsed_file, file_excluder)
         
     except CompilerError as err:
         print("The following compiler error(s) were encountered when parsing {0}:".format(args.target_file))
         print(err)
         print("The process was aborted and the output was not successfully generated.")
+    except SevereLogMsgException as logerr:
+        pass

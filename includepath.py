@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 '''
 MIT License
 
@@ -22,39 +21,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''   
-from includepath import IncludePath
-from typemanager import type_manager
+'''
+import os
 
-class parsed_file(object):
-    def __init__(self, parsed_filename, typeman, includelist, include_directories):
-        self._my_file = parsed_filename
-        self._type_mgr = typeman
-        self._includes = []
-        for include in includelist:
-            self._includes.append(IncludePath(include, include_directories))
+class IncludePath(object):
+    def __init__(self, include_path_str, include_path_directories):
+        self._rawpath = include_path_str
+        self._abspath = ""
+        for path in include_path_directories:
+            tmppath = os.path.join(path, include_path_str)
+            if os.path.exists(tmppath):
+                self._abspath = tmppath
+                break
         
     @property
-    def all_parsed_compound_types(self):
-        return self._type_mgr.get_compound_types()
-        
+    def absolute_filepath(self):
+        return self._abspath
+
     @property
-    def all_parsed_enum_types(self):
-        return self._type_mgr.get_enum_types()
-        
+    def raw_include_filename(self):
+        return self._rawpath
+
     @property
-    def compound_types_parsed_from_file(self):
-        return [type for type in self._type_mgr.get_compound_types() if type.declaration_filename == self._my_file]
-        
-    @property
-    def enum_types_parsed_from_file(self):
-        return [type for type in self._type_mgr.get_enum_types() if type.declaration_filename == self._my_file]
-        
-    @property
-    def other_includes(self):
-        return self._includes
-        
-    
-    @property
-    def parsed_filepath(self):
-        return self._my_file
+    def include_filename(self):
+        return os.path.basename(self._rawpath)
+
