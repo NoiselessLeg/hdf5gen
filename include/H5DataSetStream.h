@@ -66,9 +66,9 @@ namespace dxtrans
 
             static constexpr hsize_t dim[] { 0 };
             static constexpr hsize_t maxdim[] {H5S_UNLIMITED};
-            dataspace_ = H5::DataSpace(detail::RANK, dim, maxdim);
+            H5::DataSpace dataspace = H5::DataSpace(detail::RANK, dim, maxdim);
 
-            dataset_ = fileHandle.createDataSet(H5std_string(typeName), dataType, dataspace_, cparms);
+            dataset_ = fileHandle.createDataSet(H5std_string(typeName), dataType, dataspace, cparms);
         }
 
         template <typename T>
@@ -101,7 +101,6 @@ namespace dxtrans
     private:
         size_t num_written_elems_;
         std::string typename_;
-        H5::DataSpace dataspace_;
         H5::DataSet dataset_;
 
     };
