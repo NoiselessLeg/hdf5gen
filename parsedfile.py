@@ -22,9 +22,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''   
+'''
 from includepath import IncludePath
 from typemanager import type_manager
+
 
 class parsed_file(object):
     def __init__(self, parsed_filename, typeman, includelist, include_directories):
@@ -33,28 +34,31 @@ class parsed_file(object):
         self._includes = []
         for include in includelist:
             self._includes.append(IncludePath(include, include_directories))
-        
+
     @property
     def all_parsed_compound_types(self):
         return self._type_mgr.get_compound_types()
-        
+
     @property
     def all_parsed_enum_types(self):
         return self._type_mgr.get_enum_types()
-        
+
     @property
     def compound_types_parsed_from_file(self):
         return [type for type in self._type_mgr.get_compound_types() if type.declaration_filename == self._my_file]
-        
+
     @property
     def enum_types_parsed_from_file(self):
         return [type for type in self._type_mgr.get_enum_types() if type.declaration_filename == self._my_file]
-        
+
+    @property
+    def union_types_parsed_from_file(self):
+        return [type for type in self._type_mgr.get_union_types() if type.declaration_filename == self._my_file]
+
     @property
     def other_includes(self):
         return self._includes
-        
-    
+
     @property
     def parsed_filepath(self):
         return self._my_file

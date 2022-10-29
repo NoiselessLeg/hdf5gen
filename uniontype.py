@@ -24,11 +24,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-from enum import Enum
+from fieldelem import field_element
+from typecode import TypeCode
 
 
-class TypeCode(Enum):
-    ATOMIC = 1
-    COMPOUND = 2
-    ENUM = 3
-    UNION = 4
+class union_type(object):
+    def __init__(self, typename, declaration_filename):
+        self._typename = typename
+        self._header_filename = declaration_filename
+        self._fieldlist = []
+
+    def add_field(self, fieldname, fieldtype, num_elems=1):
+        self._fieldlist.append(field_element(fieldname, fieldtype, num_elems))
+
+    @property
+    def declaration_filename(self):
+        return self._header_filename
+
+    @property
+    def fully_qualified_typename(self):
+        return self._typename
+
+    @property
+    def typename(self):
+        fqn = self.fully_qualified_typename
+        if '::' in fqn:
+            return fqn.split('::')[-1]
+        else:
+            return fqn
+
+    @property
+    def typecode(self):
+        return TypeCode.UNION
+
+    @property
+    def fields(self):
+        return self._fieldlist

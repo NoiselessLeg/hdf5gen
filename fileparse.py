@@ -34,6 +34,7 @@ from exceptiontypes import CompilerError
 from logger import Logger, LogLevel
 from parsedfile import parsed_file
 from typemanager import type_manager
+from uniontype import union_type
 
 
 def _build_typeman_recurse(logger, typeman, cursor):
@@ -45,6 +46,12 @@ def _build_typeman_recurse(logger, typeman, cursor):
                 if child.is_definition():
                     type_location = child.type.get_declaration().location.file.name
                     ctype = compound_type(child.type.spelling, type_location)
+                    typeman.add_type(child.type.spelling, ctype)
+                    _build_typeman_recurse(logger, typeman, child)
+            elif child.kind == CursorKind.UNION_DECL:
+                if child.is_definition():
+                    type_location = child.type.get_declaration().location.file.name
+                    ctype = union_type(child.type.spelling, type_location)
                     typeman.add_type(child.type.spelling, ctype)
                     _build_typeman_recurse(logger, typeman, child)
             elif child.kind == CursorKind.ENUM_DECL:

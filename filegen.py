@@ -86,6 +86,9 @@ def generate_output_header_file(logger, output_directory, parsed_file, file_excl
         for struct in parsed_file.compound_types_parsed_from_file:
             _write_compound_dx_datatype_class(writefile, struct)
 
+        for union in parsed_file.union_types_parsed_from_file:
+            _write_union_dx_datatype_class(writefile, union)
+
         writefile.write("\n#endif\n")
 
 
@@ -292,6 +295,160 @@ def _write_compound_dx_datatype_class(output_file, datatype):
                                               i,
                                               safe_typename))
     indentation_spaces.decrement()
+
+    output_file.write(indentation_spaces + "}\n\n")
+    output_file.write(indentation_spaces + "H5::CompType datatype_;\n")
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "};\n\n")
+
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "}\n")
+
+
+def _write_union_dx_datatype_class(output_file, datatype):
+    indentation_spaces = filegenutils.Indentation()
+
+    output_file.write(indentation_spaces + "namespace dxtrans {\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces + "template <>\n")
+    output_file.write(indentation_spaces +
+                      "class DxDataType<{0}> {{\n".format(datatype.fully_qualified_typename))
+
+    output_file.write(indentation_spaces + "public:\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces +
+                      "static DxDataType& instance() noexcept {\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces +
+                      "static DxDataType<{0}> e {{}};\n".format(datatype.fully_qualified_typename))
+    output_file.write(indentation_spaces + "return e;\n")
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "}\n\n")
+
+    output_file.write(indentation_spaces +
+                      "const H5::DataType& h5_datatype() const noexcept {\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces + "return datatype_;\n")
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "}\n\n")
+
+    output_file.write(indentation_spaces +
+                      "H5::DataType& h5_datatype() noexcept {\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces + "return datatype_;\n")
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "}\n\n")
+
+    output_file.write(indentation_spaces +
+                      "const char* type_name() const noexcept {\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces +
+                      "return \"{0}\";\n".format(datatype.typename))
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "}\n\n")
+
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "private:\n")
+    indentation_spaces.increment()
+
+    output_file.write(indentation_spaces + "DxDataType() noexcept:\n")
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces +
+                      "datatype_(sizeof({0}))\n".format(datatype.fully_qualified_typename))
+    indentation_spaces.decrement()
+    output_file.write(indentation_spaces + "{\n")
+
+    indentation_spaces.increment()
+    output_file.write(indentation_spaces +
+                      "static constexpr {0} zzz_tmp {{}};\n".format(datatype.fully_qualified_typename))
+
+    seen_datatypes = set()
+
+    # first, we will attempt to use the first compound type if one is available.
+    # if we do not find a field who is a compound type, then use the first
+    # atomic type or enum type available.
+    field_to_use = None
+    if len(datatype.fields) > 0:
+        field_to_use = next(
+            (field for field in datatype.fields if field.type_definition.typecode == TypeCode.COMPOUND), None)
+        if field_to_use is None:
+            field_to_use = datatype.fields[0]
+
+    if field_to_use is not None:
+        if field_to_use.type_definition.typecode == TypeCode.ATOMIC:
+            native_typename = _atomic_to_predefined_typemap[field_to_use.type_definition.atomic_type]
+            assert native_typename is not None
+            if not field_to_use.is_array():
+                output_file.write(indentation_spaces +
+                                  "datatype_.insertMember(\"{0}\", HDF5_FIELD_OFFSET(zzz_tmp,{1}), H5::{2});\n"
+                                  .format(field_to_use.name,
+                                          field_to_use.name,
+                                          native_typename))
+            else:
+                output_file.write(indentation_spaces + "hsize_t {0}_dims[1] = {{{1}}};\n".format(
+                    field_to_use.name, field_to_use.num_array_elems()))
+                output_file.write(indentation_spaces +
+                                  "datatype_.insertMember(\"{0}\", HDF5_FIELD_OFFSET(zzz_tmp,{1}[0]), H5::ArrayType(H5::{2}, 1, {3}_dims));\n"
+                                  .format(field_to_use.name,
+                                          field_to_use.name,
+                                          native_typename,
+                                          field_to_use.name))
+
+        elif field_to_use.type_definition.typecode == TypeCode.COMPOUND:
+            safe_typename = field_to_use.type_definition.fully_qualified_typename.replace(
+                "::", '_')
+            if safe_typename not in seen_datatypes:
+                output_file.write(indentation_spaces +
+                                  "DxDataType<{0}>& zzz_{1}_dxtype = DxDataType<{2}>::instance();\n"
+                                  .format(field_to_use.type_definition.fully_qualified_typename,
+                                          safe_typename,
+                                          field_to_use.type_definition.fully_qualified_typename))
+                seen_datatypes.add(safe_typename)
+
+            if not field_to_use.is_array():
+                output_file.write(indentation_spaces +
+                                  "datatype_.insertMember(\"{0}\", HDF5_FIELD_OFFSET(zzz_tmp,{1}), zzz_{2}_dxtype.h5_datatype());\n"
+                                  .format(field_to_use.name,
+                                          field_to_use.name,
+                                          safe_typename))
+            else:
+                output_file.write(indentation_spaces + "hsize_t {0}_dims[1] = {{{1}}};\n".format(
+                    field_to_use.name, field_to_use.num_array_elems()))
+                output_file.write(indentation_spaces +
+                                  "datatype_.insertMember(\"{0}\", HDF5_FIELD_OFFSET(zzz_tmp,{1}[0]), H5::ArrayType(zzz_{2}_dxtype.h5_datatype(), 1, {3}_dims);\n"
+                                  .format(field_to_use.name,
+                                          field_to_use.name,
+                                          safe_typename,
+                                          field_to_use.name))
+
+        elif field_to_use.type_definition.typecode == TypeCode.ENUM:
+            safe_typename = field_to_use.type_definition.fully_qualified_typename.replace(
+                "::", '_')
+
+            if safe_typename not in seen_datatypes:
+                output_file.write(indentation_spaces +
+                                  "DxDataType<{0}>& zzz_{1}_dxtype = DxDataType<{2}>::instance();\n"
+                                  .format(field_to_use.type_definition.fully_qualified_typename,
+                                          safe_typename,
+                                          field_to_use.type_definition.fully_qualified_typename))
+                seen_datatypes.add(safe_typename)
+
+            if not field_to_use.is_array():
+                output_file.write(indentation_spaces +
+                                  "datatype_.insertMember(\"{0}\", HDF5_FIELD_OFFSET(zzz_tmp,{1}), zzz_{2}_dxtype.h5_datatype());\n"
+                                  .format(field_to_use.name,
+                                          field_to_use.name,
+                                          safe_typename))
+            else:
+                for i in range(0, field_to_use.num_array_elems()):
+                    output_file.write(indentation_spaces +
+                                      "datatype_.insertMember(\"{0}[{1}]\", HDF5_FIELD_OFFSET(zzz_tmp,{2}[{3}]), zzz_{4}_dxtype.h5_datatype());\n"
+                                      .format(field_to_use.name,
+                                              i,
+                                              field_to_use.name,
+                                              i,
+                                              safe_typename))
+        indentation_spaces.decrement()
 
     output_file.write(indentation_spaces + "}\n\n")
     output_file.write(indentation_spaces + "H5::CompType datatype_;\n")

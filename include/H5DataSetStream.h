@@ -58,7 +58,7 @@ namespace dxtrans
         {
             static constexpr UnderlyingT fill_value {};
 
-            static constexpr hsize_t chunkdims[] { 1 };
+            static constexpr hsize_t chunkdims[] { detail::DEFAULT_CHUNKSIZE };
         
             H5::DSetCreatPropList cparms {};
             cparms.setChunk(detail::RANK, chunkdims);
