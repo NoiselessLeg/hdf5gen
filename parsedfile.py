@@ -31,9 +31,14 @@ class parsed_file(object):
     def __init__(self, parsed_filename, typeman, includelist, include_directories):
         self._my_file = parsed_filename
         self._type_mgr = typeman
-        self._includes = []
+
+        includeset = set()
         for include in includelist:
-            self._includes.append(IncludePath(include, include_directories))
+            includeset.add(IncludePath(include, include_directories))
+
+        self._includes = []
+        for include in includeset:
+            self._includes.append(include)
 
     @property
     def all_parsed_compound_types(self):

@@ -116,14 +116,15 @@ def _build_typeman_recurse(logger, typeman, cursor):
                             child.type.spelling))
 
 
-def _build_include_list(logger, cursor):
-    include_list = []
-    for child in cursor.get_children():
-        if child.kind == CursorKind.INCLUSION_DIRECTIVE:
-            filename = child.get_included_file().name
-            include_list.append(filename)
-
-    return include_list
+def _build_include_list(typeman, additional_include_dirs):
+    inclist = []
+    for type in typeman.get_compound_types():
+        inclist.append(type.declaration_filename)
+    for type in typeman.get_enum_types():
+        inclist.append(type.declaration_filename)
+    for type in typeman.get_union_types():
+        inclist.append(type.declaration_filename)
+    return inclist
 
 
 def parse_input_file(input_filename, logger, additional_include_dirs=[]):
@@ -157,7 +158,7 @@ def parse_input_file(input_filename, logger, additional_include_dirs=[]):
     # old way
     typeman = type_manager()
 
-    include_list = _build_include_list(logger, translation_unit.cursor)
     _build_typeman_recurse(logger, typeman, translation_unit.cursor)
+    include_list = _build_include_list(typeman, additional_include_dirs)
 
     return parsed_file(input_filename, typeman, include_list, additional_include_dirs)

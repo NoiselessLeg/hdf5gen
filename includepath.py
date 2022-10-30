@@ -24,16 +24,17 @@ SOFTWARE.
 '''
 import os
 
+
 class IncludePath(object):
     def __init__(self, include_path_str, include_path_directories):
         self._rawpath = include_path_str
-        self._abspath = ""
+        self._abspath = os.path.abspath(include_path_str)
         for path in include_path_directories:
             tmppath = os.path.join(path, include_path_str)
             if os.path.exists(tmppath):
                 self._abspath = tmppath
                 break
-        
+
     @property
     def absolute_filepath(self):
         return self._abspath
@@ -46,3 +47,11 @@ class IncludePath(object):
     def include_filename(self):
         return os.path.basename(self._rawpath)
 
+    def __eq__(self, other):
+        return self.absolute_filepath == other.absolute_filepath
+
+    def __ne__(self, other):
+        return not(self == other)
+
+    def __hash__(self):
+        return hash(self._abspath)
