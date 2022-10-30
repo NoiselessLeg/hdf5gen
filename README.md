@@ -74,22 +74,18 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `NoiselessLeg`, `hdf5gen`, `twitter_handle`, `linkedin_username`, `gmail`, `jol5461`, `HDF5 Transform Generator`, `project_description`
+The idea for this generator came about when I was given the task to convert many, many
+pre-existing data types in a codebase to something that could be written to an HDF5 file.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Although the HDF5 object model is fairly well-designed, it is not a trivial task to manually
+create hundreds of compound datatypes to model structures in pre-existing code. 
 
-
-
-### Built With
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+In addition, the documentation on appending to an HDF5 dataset is somewhat outdated (i.e., many sites referenced
+in Q/A platforms have moved or no longer exist). This repository also contains a very simple HDF5 file
+writer that can be used to create an HDF5 file, write all instances of a datatype to a designated dataset
+for that type, and append to it. The library is organized that the generated code can be used in a "freestanding"
+mode - i.e., you would not need the simple writer, and can effectively use the generated data types in your
+own custom HDF5 file writing implementation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
