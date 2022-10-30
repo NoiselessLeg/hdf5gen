@@ -50,8 +50,8 @@ namespace dxtrans
     
         template <class UnderlyingT>
         H5DataSetStream(const std::string& typeName,
-                        H5::H5File& fileHandle,
-                        H5::DataType& dataType,
+                        const H5::H5File& fileHandle,
+                        const H5::DataType& dataType,
                         detail::type_holder<UnderlyingT>&& tmp):
             num_written_elems_(0),
             typename_(typeName)
@@ -72,7 +72,7 @@ namespace dxtrans
         }
 
         template <typename T>
-        void write(const T& data, H5::DataType& datatype)
+        void write(const T& data, const H5::DataType& datatype)
         {
             // get the hyperslab that we're 
             const hsize_t dims[] { 1 };
@@ -107,8 +107,8 @@ namespace dxtrans
 
     template <typename UnderlyingT>
     H5DataSetStream make_dataset_stream(const std::string& typeName,
-                                        H5::H5File& fileHandle,
-                                        H5::DataType& dataType)
+                                        const H5::H5File& fileHandle,
+                                        const H5::DataType& dataType)
     {
         return H5DataSetStream(typeName,
                                fileHandle,

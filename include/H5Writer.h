@@ -53,7 +53,7 @@ namespace dxtrans
         void write(const CompoundOrEnumT& data)
         {
             DxDataType<CompoundOrEnumT> data_type = DxDataType<CompoundOrEnumT>::instance();
-            H5::DataType& h5type = data_type.h5_datatype();
+            const H5::DataType& h5type = data_type.h5_datatype();
             H5DataSetStream& ds = get_or_create_dataset<CompoundOrEnumT>(typeid(data), 
                                                                          data_type.type_name(), 
                                                                          h5type);
@@ -66,7 +66,7 @@ namespace dxtrans
         template <typename RawType>
         H5DataSetStream& get_or_create_dataset(const std::type_info& tid,
                                                const char* typeName,
-                                               H5::DataType& dataType)
+                                               const H5::DataType& dataType)
         {
             auto typeIdx = std::type_index(tid);
             auto elem = datasets_.find(typeIdx);

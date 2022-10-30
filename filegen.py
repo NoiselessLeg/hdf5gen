@@ -120,13 +120,6 @@ def _write_enum_dx_datatype_class(output_file, datatype):
     output_file.write(indentation_spaces + "}\n\n")
 
     output_file.write(indentation_spaces +
-                      "H5::DataType& h5_datatype() noexcept {\n")
-    indentation_spaces.increment()
-    output_file.write(indentation_spaces + "return datatype_;\n")
-    indentation_spaces.decrement()
-    output_file.write(indentation_spaces + "}\n\n")
-
-    output_file.write(indentation_spaces +
                       "const char* type_name() const noexcept {\n")
     indentation_spaces.increment()
     output_file.write(indentation_spaces +
@@ -184,13 +177,6 @@ def _write_compound_dx_datatype_class(output_file, datatype):
 
     output_file.write(indentation_spaces +
                       "const H5::DataType& h5_datatype() const noexcept {\n")
-    indentation_spaces.increment()
-    output_file.write(indentation_spaces + "return datatype_;\n")
-    indentation_spaces.decrement()
-    output_file.write(indentation_spaces + "}\n\n")
-
-    output_file.write(indentation_spaces +
-                      "H5::DataType& h5_datatype() noexcept {\n")
     indentation_spaces.increment()
     output_file.write(indentation_spaces + "return datatype_;\n")
     indentation_spaces.decrement()
@@ -327,13 +313,6 @@ def _write_union_dx_datatype_class(output_file, datatype):
 
     output_file.write(indentation_spaces +
                       "const H5::DataType& h5_datatype() const noexcept {\n")
-    indentation_spaces.increment()
-    output_file.write(indentation_spaces + "return datatype_;\n")
-    indentation_spaces.decrement()
-    output_file.write(indentation_spaces + "}\n\n")
-
-    output_file.write(indentation_spaces +
-                      "H5::DataType& h5_datatype() noexcept {\n")
     indentation_spaces.increment()
     output_file.write(indentation_spaces + "return datatype_;\n")
     indentation_spaces.decrement()
