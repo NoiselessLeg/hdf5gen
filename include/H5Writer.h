@@ -35,7 +35,7 @@
 
 
 
-namespace dxtrans
+namespace h5gen
 {
     class H5Writer
     {

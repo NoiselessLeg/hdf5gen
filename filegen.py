@@ -35,6 +35,8 @@ from parsedfile import parsed_file
 from typecode import TypeCode
 from typemanager import type_manager
 
+_our_namespace_name = "h5gen"
+
 _atomic_to_predefined_typemap = {
     atomictype.NativeType.CHAR: "PredType::NATIVE_CHAR",
     atomictype.NativeType.SCHAR: "PredType::NATIVE_SCHAR",
@@ -95,7 +97,8 @@ def generate_output_header_file(logger, output_directory, parsed_file, file_excl
 def _write_enum_dx_datatype_class(output_file, datatype):
     indentation_spaces = filegenutils.Indentation()
 
-    output_file.write(indentation_spaces + "namespace dxtrans {\n")
+    output_file.write(indentation_spaces +
+                      "namespace {0} {{\n".format(_our_namespace_name))
     indentation_spaces.increment()
     output_file.write(indentation_spaces + "template <>\n")
     output_file.write(indentation_spaces +
@@ -158,7 +161,8 @@ def _write_enum_dx_datatype_class(output_file, datatype):
 def _write_compound_dx_datatype_class(output_file, datatype):
     indentation_spaces = filegenutils.Indentation()
 
-    output_file.write(indentation_spaces + "namespace dxtrans {\n")
+    output_file.write(indentation_spaces +
+                      "namespace {0} {{\n".format(_our_namespace_name))
     indentation_spaces.increment()
     output_file.write(indentation_spaces + "template <>\n")
     output_file.write(indentation_spaces +
@@ -294,7 +298,8 @@ def _write_compound_dx_datatype_class(output_file, datatype):
 def _write_union_dx_datatype_class(output_file, datatype):
     indentation_spaces = filegenutils.Indentation()
 
-    output_file.write(indentation_spaces + "namespace dxtrans {\n")
+    output_file.write(indentation_spaces +
+                      "namespace {0} {{\n".format(_our_namespace_name))
     indentation_spaces.increment()
     output_file.write(indentation_spaces + "template <>\n")
     output_file.write(indentation_spaces +

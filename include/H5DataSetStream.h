@@ -25,7 +25,7 @@
 
 #include <array>
 
-namespace dxtrans
+namespace h5gen
 { 
 
     namespace detail
